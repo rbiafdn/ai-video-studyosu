@@ -1,0 +1,51 @@
+# Yerel:   make init && docker compose up --build          -> http://127.0.0.1:8765
+# Sunucu:  .env içine PUBLIC_BASE_URL=https://alanadiniz, SITE_DOMAIN=alanadiniz, POSTGRES_PASSWORD=... ve
+#          DATABASE_URL=postgresql://studyo:<şifre>@postgres:5432/studyo yazın, sonra:
+#          docker compose --profile https --profile postgres up --build -d
+services:
+  studyo:
+    build: .
+    ports:
+      - "127.0.0.1:8765:8765"   # doğrudan erişim yalnızca sunucunun kendisinden; dışarıya Caddy (HTTPS) açılır
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+      - ./config:/app/config
+      - ./prompts:/app/prompts
+    restart: unless-stopped
+
+  # Otomatik HTTPS (Let's Encrypt). Alan adının DNS kaydı bu sunucuya bakmalı; 80 ve 443 açık olmalı.
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - studyo
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: studyo
+      POSTGRES_DB: studyo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+  pg_data:

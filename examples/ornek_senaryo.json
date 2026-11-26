@@ -1,0 +1,32 @@
+[
+  {
+    "sahne_no": 1,
+    "tur": "anlatıcı",
+    "karakter": "",
+    "replik": "Küçük bir sahil kasabasında, deniz feneri yıllardır yanmıyordu.",
+    "dil": "",
+    "gorsel_prompt": "Wide establishing shot of a small Aegean fishing town at dawn, an old white lighthouse on a cliff",
+    "video_prompt": "Slow aerial push-in toward the lighthouse",
+    "sure": 6
+  },
+  {
+    "sahne_no": 2,
+    "tur": "konuşan",
+    "karakter": "Elif",
+    "replik": "Deniz, fenerin ışığını gördün mü?",
+    "dil": "tr",
+    "gorsel_prompt": "Medium close-up of Elif on the harbor pier at sunrise",
+    "video_prompt": "She speaks calmly",
+    "sure": 4
+  },
+  {
+    "sahne_no": 3,
+    "tur": "konuşmasız",
+    "karakter": "Deniz",
+    "replik": "",
+    "gorsel_prompt": "Deniz walking along the rocky shore, waves crashing",
+    "video_prompt": "Tracking shot along the shore",
+    "sure": 5,
+    "sesli_an": true
+  }
+]

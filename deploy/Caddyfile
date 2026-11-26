@@ -1,0 +1,12 @@
+# Otomatik HTTPS. SITE_DOMAIN ortam değişkeni docker-compose.yml üzerinden gelir.
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	# büyük video yüklemeleri (elle adım, sohbet eki)
+	request_body {
+		max_size 700MB
+	}
+	reverse_proxy studyo:8765 {
+		# canlı olay akışı (SSE) arabelleğe alınmasın
+		flush_interval -1
+	}
+}

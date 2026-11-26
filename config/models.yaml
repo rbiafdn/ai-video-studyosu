@@ -1,0 +1,169 @@
+# Model kimlikleri, uç noktalar ve fiyatlar. Kodda model adı gömülü değildir; yeni sürüm
+# çıktığında buraya satır eklemek yeterli. Kaynak: resmi dokümanlar, 26 Kasım 2026 okuması.
+# "DOĞRULANMADI" notlu değerler resmi sayfadan teyit edilemedi; kendi hesabınıza göre düzeltin.
+
+providers:
+  elevenlabs_tts:
+    label: ElevenLabs (ses)
+    base_url: https://api.elevenlabs.io
+    api_available: true
+    default: eleven_v4            # hedef sürüm "Eleven v4" API'de mevcut
+    output_format: mp3_44100_128  # mp3_44100_192 Creator+, wav_44100 Pro+ ister
+    no_language_code: [eleven_multilingual_v2]   # bu modellerde language_code gönderilmez
+    models:
+      - {id: eleven_v4, label: "Eleven v4 (en yeni)", max_chars: 100000, usd_per_1k_chars: 0.08}
+      - {id: eleven_v3, label: "Eleven v3", max_chars: 5000, usd_per_1k_chars: 0.08}
+      - {id: eleven_multilingual_v2, label: "Multilingual v2", max_chars: 10000, usd_per_1k_chars: 0.08}
+      - {id: eleven_flash_v2_5, label: "Flash v2.5 (hızlı, ucuz)", max_chars: 40000, usd_per_1k_chars: 0.04}
+
+  kling_image:
+    label: Kling (görsel)
+    base_url: https://api-singapore.klingai.com
+    api_available: true
+    default: kling-4.0
+    resolution: 2k
+    max_refs: 10
+    # yerel görseller "url" alanında ham base64 gönderilir (eski dokümandaki kural; yeni alanda
+    # "data:" öneki istenip istenmediği DOĞRULANMADI: gerekirse true yapın)
+    base64_data_prefix: false
+    models:
+      - id: kling-4.0
+        label: "Kling Image 4.0"
+        path: /image-generation/kling-4.0
+        usd_per_image: {2k: 0.063, 4k: 0.094, 8k: 0.157}
+        usd_per_ref: 0.003
+
+  kling_video:
+    label: Kling (video)
+    base_url: https://api-singapore.klingai.com
+    api_available: true
+    # Varsayılan 3.0: yerel ses (native audio) sahne bazında açılıp kapatılabiliyor.
+    # 4.0'da ses HER ZAMAN açık (parametre yok); "sesli an" olmayan sahnelerde kurgu sesi kısar.
+    default: kling-3.0
+    resolution: 1080p
+    base64_data_prefix: false
+    models:
+      - id: kling-3.0
+        label: "Kling 3.0"
+        audio: toggle           # settings.audio: native | off
+        min_duration: 3
+        max_duration: 15
+        usd_per_second: {720p: 0.084, 1080p: 0.112, 4k: 0.42}
+        usd_per_second_audio: {720p: 0.126, 1080p: 0.168, 4k: 0.42}
+      - id: kling-4.0
+        label: "Kling 4.0 (ses hep açık)"
+        audio: always
+        min_duration: 3
+        max_duration: 30
+        usd_per_second: {720p: 0.157, 1080p: 0.235, 4k: 0.549}
+      - id: kling-4.0-flash
+        label: "Kling 4.0 Flash (720p)"
+        audio: always
+        min_duration: 3
+        max_duration: 20
+        resolution: 720p
+        usd_per_second: {720p: 0.094}
+      - id: kling-3.0-turbo
+        label: "Kling 3.0 Turbo (ses hep açık)"
+        audio: always
+        min_duration: 3
+        max_duration: 15
+        usd_per_second: {720p: 0.112, 1080p: 0.14}
+      - id: kling-2.6
+        label: "Kling 2.6"
+        audio: toggle
+        durations: [5, 10]
+        usd_per_second: {720p: 0.042, 1080p: 0.07}
+        usd_per_second_audio: {1080p: 0.14}
+      - id: kling-2.5-turbo
+        label: "Kling 2.5 Turbo (sessiz)"
+        audio: none
+        durations: [5, 10]
+        usd_per_second: {720p: 0.042, 1080p: 0.07}
+
+  kling_omni:
+    label: Kling Omni (video düzeltme)
+    base_url: https://api-singapore.klingai.com
+    api_available: true
+    # Kaynak video yalnızca URL olarak verilebiliyor (yükleme ucu yok). Videonun uzak adresi
+    # yoksa ya da eskiyse adım "elle" çalışır.
+    needs_remote_video: true
+    remote_url_max_age_hours: 72
+    default: kling-3.0-omni
+    audio: original
+    models:
+      - {id: kling-3.0-omni, label: "Kling 3.0 Omni", path: /omni-video/kling-3.0-omni, max_seconds: 15.5, usd_per_second: 0.168}
+      - {id: kling-4.0, label: "Kling 4.0 Omni", path: /omni-video/kling-4.0, max_seconds: 30, usd_per_second: 0.282}
+      - {id: kling-o1, label: "Kling O1", path: /omni-video/kling-o1, max_seconds: 10, usd_per_second: 0.168}
+    manual:
+      title: "Kling Omni ile videoyu elle düzeltin"
+      steps:
+        - "Aşağıdaki kaynak videoyu indirin."
+        - "kling.ai > Omni (video düzenleme) ekranında videoyu yükleyin ve düzeltme talimatını yapıştırın."
+        - "Sonucu indirip buraya yükleyin."
+
+  kling_lipsync:
+    label: Kling (dudak senkronu)
+    base_url: https://api-singapore.klingai.com
+    api_available: true
+    needs_remote_video: true
+    remote_url_max_age_hours: 72
+    default: advanced-lip-sync
+    max_audio_mb: 5
+    models:
+      - {id: advanced-lip-sync, label: "Kling Lip Sync", usd_per_5s: 0.07, usd_face_detect: 0.007}
+    manual:
+      title: "Kling dudak senkronunu elle yapın"
+      steps:
+        - "Aşağıdaki videoyu ve ses dosyasını indirin."
+        - "kling.ai > Lip Sync ekranında videoyu yükleyin, sesi ekleyin."
+        - "Sonucu indirip buraya yükleyin."
+
+  heygen_avatar:
+    label: HeyGen (konuşan sahne)
+    base_url: https://api.heygen.com
+    api_available: true
+    default: heygen-avatar-6       # hedef "Avatar 6/Pro": "Avatar Pro" diye bir motor yok
+    resolution: 1080p
+    max_image_side: 1920           # dokümandaki "2K altı görsel" kuralı için küçültme
+    max_audio_seconds: 600
+    models:
+      # usd_per_second değerleri DOĞRULANMADI (resmi fiyat sayfası okunamadı); hesabınıza göre düzeltin.
+      - {id: heygen-avatar-6, label: "Avatar 6", route: models_avatars, usd_per_second: 0.10}
+      - {id: heygen-avatar-6-turbo, label: "Avatar 6 Turbo", route: models_avatars, usd_per_second: 0.06}
+      - {id: avatar_iv, label: "Avatar IV (konuşan fotoğraf)", route: videos_image, usd_per_second: 0.05}
+
+# Kurgu hedefleri
+montage:
+  width: 1920
+  height: 1080
+  fps: 30
+  loudness_lufs: -14
+  true_peak_db: -1.5
+
+# Yönetmen ajanı (Claude). Kaynak: Anthropic dokümanı, Kasım 2026.
+# Fiyatlar milyon token başına dolar; maliyet özeti bunlardan hesaplanır.
+claude:
+  default: claude-fable-5-2          # "en yetenekli güncel model"
+  effort: high                       # low | medium | high | xhigh | max
+  max_tokens: 64000
+  # Güvenlik sınıflandırıcısı bir isteği reddederse Anthropic'in önerdiği modele sunucu tarafında geç
+  fallbacks: default                 # kapatmak için: off
+  # Uzun çalışmada eski araç sonuçlarını SUNUCU tarafında temizle. Geçmişi istemcide kırpmak bu
+  # modelde yasak (düşünme blokları geçersiz olur); bu yüzden istemci geçmişi yalnızca ekler.
+  context_editing: true
+  thinking_display: summarized
+  models:
+    - {id: claude-fable-5-2,  label: "Claude Fable 5.2 (en yetenekli)", input: 8.0, output: 40.0, cache_read: 0.20, cache_write: 10.0}
+    - {id: claude-opus-5-5,   label: "Claude Opus 5.5",                  input: 4.0, output: 20.0, cache_read: 0.20, cache_write: 5.0}
+    - {id: claude-sonnet-5-5, label: "Claude Sonnet 5.5 (ucuz)",         input: 2.0, output: 10.0, cache_read: 0.10, cache_write: 2.5}
+  # ajan sınırları (kodda zorlanır)
+  max_scene_retries: 3               # sahne başına yeniden üretim; sonra "elle bakılmalı"
+  max_fix_rounds: 2                  # kontrol -> düzeltme turu
+  max_turns: 400                     # tek çalışmada model turu üst sınırı
+
+# Kalite kontrolü eşikleri
+qc:
+  lipsync_threshold_ms: 120          # bundan büyük kayma "dudak senkronu" bulgusu olur
+  lipsync_min_confidence: 0.30       # ölçüm güveni bunun altındaysa yalnızca bilgi notu
+  duration_diff_ratio: 0.25          # çeviri sesi kaynak dilden bu orandan fazla uzun/kısaysa göster

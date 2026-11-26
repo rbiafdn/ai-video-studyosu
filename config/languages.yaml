@@ -1,0 +1,60 @@
+# Dil listesi ve sağlayıcı desteği. Kaynak: resmi dokümanlar, 26 Kasım 2026 okuması.
+# Kodlar BCP-47. Bölgeli kodlar (es-MX, pt-BR) taban dilin satırını kullanır.
+#
+# elevenlabs: o dili destekleyen TTS modelleri (https://elevenlabs.io/docs/overview/models).
+#   İstekte language_code olarak taban kod (ISO 639-1) gönderilir; bölgeli kodların kabul edilip
+#   edilmediği DOĞRULANMADI, bu yüzden bölge yalnızca ses seçimiyle (aksan) karşılanır.
+#   eleven_multilingual_v2 language_code parametresini desteklemez; o modelde gönderilmez.
+# heygen / kling_lipsync: ses dosyasından çalışırlar, API'de dil parametresi YOK ve desteklenen
+#   dil listesi belgelenmemiş. "documented: false" = engellenmez ama kalite DOĞRULANMADI.
+#
+# Yeni dil eklemek: aşağıya bir satır ekleyin (README > "Yeni dil ekleme").
+
+provider_notes:
+  heygen_avatar: {language_param: false, documented: false}
+  kling_lipsync: {language_param: false, documented: false}
+
+# Altyazı gömme yazı tipleri (yazı sistemine göre). İlk bulunan kullanılır; libass eksik
+# glifleri sistemdeki başka yazı tipinden tamamlar.
+fonts:
+  latin:      {windows: "Arial", linux: "DejaVu Sans", darwin: "Helvetica"}
+  cyrillic:   {windows: "Arial", linux: "DejaVu Sans", darwin: "Helvetica"}
+  greek:      {windows: "Arial", linux: "DejaVu Sans", darwin: "Helvetica"}
+  arabic:     {windows: "Segoe UI", linux: "Noto Sans Arabic", darwin: "Geeza Pro"}
+  hebrew:     {windows: "Arial", linux: "Noto Sans Hebrew", darwin: "Arial Hebrew"}
+  devanagari: {windows: "Nirmala UI", linux: "Noto Sans Devanagari", darwin: "Kohinoor Devanagari"}
+  han:        {windows: "Microsoft YaHei", linux: "Noto Sans CJK SC", darwin: "PingFang SC"}
+  japanese:   {windows: "Yu Gothic", linux: "Noto Sans CJK JP", darwin: "Hiragino Sans"}
+  korean:     {windows: "Malgun Gothic", linux: "Noto Sans CJK KR", darwin: "Apple SD Gothic Neo"}
+
+all_tts: &all [eleven_v4, eleven_v3, eleven_multilingual_v2, eleven_flash_v2_5]
+new_tts: &new [eleven_v4, eleven_v3]
+
+languages:
+  - {code: tr, name: Türkçe,      script: latin,      rtl: false, elevenlabs: *all}
+  - {code: en, name: İngilizce,   script: latin,      rtl: false, elevenlabs: *all}
+  - {code: de, name: Almanca,     script: latin,      rtl: false, elevenlabs: *all}
+  - {code: fr, name: Fransızca,   script: latin,      rtl: false, elevenlabs: *all}
+  - {code: es, name: İspanyolca,  script: latin,      rtl: false, elevenlabs: *all}
+  - {code: it, name: İtalyanca,   script: latin,      rtl: false, elevenlabs: *all}
+  - {code: pt, name: Portekizce,  script: latin,      rtl: false, elevenlabs: *all}
+  - {code: nl, name: Felemenkçe,  script: latin,      rtl: false, elevenlabs: *all}
+  - {code: pl, name: Lehçe,       script: latin,      rtl: false, elevenlabs: *all}
+  - {code: sv, name: İsveççe,     script: latin,      rtl: false, elevenlabs: *all}
+  - {code: id, name: Endonezce,   script: latin,      rtl: false, elevenlabs: *all}
+  - {code: ru, name: Rusça,       script: cyrillic,   rtl: false, elevenlabs: *all}
+  - {code: uk, name: Ukraynaca,   script: cyrillic,   rtl: false, elevenlabs: *all}
+  - {code: el, name: Yunanca,     script: greek,      rtl: false, elevenlabs: *all}
+  - {code: ar, name: Arapça,      script: arabic,     rtl: true,  elevenlabs: *all}
+  - {code: he, name: İbranice,    script: hebrew,     rtl: true,  elevenlabs: *new}   # multilingual_v2 ve flash desteklemiyor
+  - {code: fa, name: Farsça,      script: arabic,     rtl: true,  elevenlabs: *new}   # multilingual_v2 ve flash desteklemiyor
+  - {code: hi, name: Hintçe,      script: devanagari, rtl: false, elevenlabs: *all}
+  - {code: ja, name: Japonca,     script: japanese,   rtl: false, elevenlabs: *all}
+  - {code: ko, name: Korece,      script: korean,     rtl: false, elevenlabs: *all}
+  - {code: zh, name: Çince,       script: han,        rtl: false, elevenlabs: *all}
+
+# Otomatik dil algılama (lingua): metin bundan kısaysa ya da güven eşiğin altındaysa
+# algılama yerine proje/bölüm dili kullanılır.
+detection:
+  min_chars: 20
+  min_confidence: 0.6
